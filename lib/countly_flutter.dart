@@ -12,6 +12,7 @@ import 'package:pedantic/pedantic.dart';
 abstract class AttributionKey {
   /// For iOS IDFA
   static String IDFA = 'idfa';
+
   /// For Android advertising ID
   static String AdvertisingID = 'adid';
 }
@@ -51,14 +52,9 @@ class Countly {
   /// Set true when user enabled crash logging
   static bool _enableCrashReportingFlag = false;
 
-  static Map<String, String> messagingMode = Platform.isAndroid ? {
-    'TEST': '2',
-    'PRODUCTION': '0'
-  } : {
-    'TEST': '1',
-    'PRODUCTION': '0',
-    'ADHOC': '2'
-  };
+  static Map<String, String> messagingMode = Platform.isAndroid
+      ? {'TEST': '2', 'PRODUCTION': '0'}
+      : {'TEST': '1', 'PRODUCTION': '0', 'ADHOC': '2'};
 
   static Map<String, String> deviceIDType = {
     'TemporaryDeviceID': 'TemporaryDeviceID'
@@ -82,25 +78,25 @@ class Countly {
   static Future<void> _methodCallHandler(MethodCall call) async {
     switch (call.method) {
       case 'widgetShown':
-        if(_widgetShown != null) {
+        if (_widgetShown != null) {
           _widgetShown!();
         }
         break;
       case 'widgetClosed':
-        if(_widgetClosed != null) {
+        if (_widgetClosed != null) {
           _widgetClosed!();
           _widgetShown = null;
           _widgetClosed = null;
         }
         break;
       case 'remoteConfigCallback':
-        if(_remoteConfigCallback != null) {
+        if (_remoteConfigCallback != null) {
           _remoteConfigCallback!(call.arguments);
           _remoteConfigCallback = null;
         }
         break;
       case 'ratingWidgetCallback':
-        if(_ratingWidgetCallback != null) {
+        if (_ratingWidgetCallback != null) {
           _ratingWidgetCallback!(call.arguments);
           _ratingWidgetCallback = null;
         }
@@ -119,7 +115,7 @@ class Countly {
     log('init is deprecated, use initWithConfig instead',
         logLevel: LogLevel.WARNING);
     CountlyConfig config = CountlyConfig(serverUrl, appKey);
-    if(deviceId != null) {
+    if (deviceId != null) {
       config.setDeviceId(deviceId);
     }
     return await initWithConfig(config);
@@ -127,29 +123,29 @@ class Countly {
 
   static Future<String?> initWithConfig(CountlyConfig config) async {
     log('Calling "initWithConfig"');
-    if(_isInitialized) {
+    if (_isInitialized) {
       String msg = 'initWithConfig, SDK is already initialized';
       Countly.log(msg, logLevel: LogLevel.ERROR);
       return msg;
     }
-    if(config.serverURL.isEmpty) {
+    if (config.serverURL.isEmpty) {
       String msg = 'initWithConfig, serverURL cannot be empty';
       Countly.log(msg, logLevel: LogLevel.ERROR);
       return msg;
     }
-    if(config.appKey.isEmpty) {
+    if (config.appKey.isEmpty) {
       String msg = 'initWithConfig, appKey cannot be empty';
       Countly.log(msg, logLevel: LogLevel.ERROR);
       return msg;
     }
-    if(config.loggingEnabled != null) {
+    if (config.loggingEnabled != null) {
       _isDebug = config.loggingEnabled!;
     }
     _channel.setMethodCallHandler(_methodCallHandler);
 
     List<dynamic> args = [];
     args.add(_configToJson(config));
-    
+
     final String? result = await _channel
         .invokeMethod('init', <String, dynamic>{'data': json.encode(args)});
     _isInitialized = true;
@@ -176,7 +172,7 @@ class Countly {
     log('Calling "replaceAllAppKeysInQueueWithCurrentAppKey"');
     final String? result = await _channel
         .invokeMethod('replaceAllAppKeysInQueueWithCurrentAppKey');
-    
+
     return result;
   }
 
@@ -187,7 +183,7 @@ class Countly {
     log('Calling "removeDifferentAppKeysFromQueue"');
     final String? result =
         await _channel.invokeMethod('removeDifferentAppKeysFromQueue');
-    
+
     return result;
   }
 
@@ -203,7 +199,7 @@ class Countly {
     List<String> args = [];
     final String? result = await _channel.invokeMethod(
         'appLoadingFinished', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -238,10 +234,9 @@ class Countly {
       });
     }
 
-    
     final String? result = await _channel.invokeMethod(
         'recordEvent', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -273,10 +268,10 @@ class Countly {
         }
       });
     }
-    
+
     final String? result = await _channel.invokeMethod(
         'recordView', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -285,31 +280,31 @@ class Countly {
     log('Calling "setUserData" with options Count:[$optionsCount]');
     List<dynamic> args = [];
     Map<String, String> userData = {};
-    if(options.containsKey('name')) {
+    if (options.containsKey('name')) {
       userData['name'] = options['name'].toString();
     }
-    if(options.containsKey('username')) {
+    if (options.containsKey('username')) {
       userData['username'] = options['username'].toString();
     }
-    if(options.containsKey('email')) {
+    if (options.containsKey('email')) {
       userData['email'] = options['email'].toString();
     }
-    if(options.containsKey('organization')) {
+    if (options.containsKey('organization')) {
       userData['organization'] = options['organization'].toString();
     }
-    if(options.containsKey('phone')) {
+    if (options.containsKey('phone')) {
       userData['phone'] = options['phone'].toString();
     }
-    if(options.containsKey('picture')) {
+    if (options.containsKey('picture')) {
       userData['picture'] = options['picture'].toString();
     }
-    if(options.containsKey('picturePath')) {
+    if (options.containsKey('picturePath')) {
       userData['picturePath'] = options['picturePath'].toString();
     }
-    if(options.containsKey('gender')) {
+    if (options.containsKey('gender')) {
       userData['gender'] = options['gender'].toString();
     }
-    if(options.containsKey('byear')) {
+    if (options.containsKey('byear')) {
       userData['byear'] = options['byear'].toString();
     }
     args.add(userData);
@@ -326,7 +321,7 @@ class Countly {
     final String? result = await _channel.invokeMethod(
         'askForNotificationPermission',
         <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -342,7 +337,7 @@ class Countly {
     final String? result = await _channel.invokeMethod(
         'disablePushNotifications',
         <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -357,10 +352,10 @@ class Countly {
     }
     List<String> args = [];
     args.add(tokenType);
-    
+
     final String? result = await _channel.invokeMethod(
         'pushTokenType', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -385,18 +380,19 @@ class Countly {
     List<String> args = [];
     final String? result = await _channel
         .invokeMethod('start', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
   @Deprecated('Use enableManualSessionHandling of CountlyConfig instead')
   static Future<String?> manualSessionHandling() async {
     log('Calling "manualSessionHandling"');
-    log('manualSessionHandling is deprecated, use enableManualSessionHandling of CountlyConfig instead', logLevel: LogLevel.WARNING);
+    log('manualSessionHandling is deprecated, use enableManualSessionHandling of CountlyConfig instead',
+        logLevel: LogLevel.WARNING);
     List<String> args = [];
     final String? result = await _channel.invokeMethod(
         'manualSessionHandling', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -405,14 +401,15 @@ class Countly {
     List<String> args = [];
     final String? result = await _channel
         .invokeMethod('stop', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
   @Deprecated('Use setUpdateSessionTimerDelay of CountlyConfig instead')
   static Future<String?> updateSessionPeriod() async {
     log('Calling "updateSessionPeriod"');
-    String msg = 'updateSessionPeriod is deprecated, use setUpdateSessionTimerDelay of CountlyConfig instead';
+    String msg =
+        'updateSessionPeriod is deprecated, use setUpdateSessionTimerDelay of CountlyConfig instead';
     log(msg, logLevel: LogLevel.WARNING);
     return msg;
   }
@@ -424,7 +421,8 @@ class Countly {
   @Deprecated('Use setUpdateSessionTimerDelay of CountlyConfig instead')
   static Future<String?> updateSessionInterval(int sessionInterval) async {
     log('Calling "updateSessionInterval":[$sessionInterval]');
-    log('updateSessionInterval is deprecated, use setUpdateSessionTimerDelay of CountlyConfig instead', logLevel: LogLevel.WARNING);
+    log('updateSessionInterval is deprecated, use setUpdateSessionTimerDelay of CountlyConfig instead',
+        logLevel: LogLevel.WARNING);
     if (_isInitialized) {
       log('updateSessionInterval should be called before init',
           logLevel: LogLevel.WARNING);
@@ -432,10 +430,10 @@ class Countly {
     }
     List<String> args = [];
     args.add(sessionInterval.toString());
-    
+
     final String? result = await _channel.invokeMethod(
         'updateSessionInterval', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -444,24 +442,26 @@ class Countly {
   @Deprecated('Use setEventQueueSizeToSend of CountlyConfig instead')
   static Future<String?> eventSendThreshold(int limit) async {
     log('Calling "eventSendThreshold":[$limit]');
-    log('eventSendThreshold is deprecated, use setEventQueueSizeToSend of CountlyConfig instead', logLevel: LogLevel.WARNING);
+    log('eventSendThreshold is deprecated, use setEventQueueSizeToSend of CountlyConfig instead',
+        logLevel: LogLevel.WARNING);
     List<String> args = [];
     args.add(limit.toString());
-    
+
     final String? result = await _channel.invokeMethod(
         'eventSendThreshold', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
   @Deprecated('Use setMaxRequestQueueSize of CountlyConfig instead')
   static Future<String?> storedRequestsLimit() async {
     log('Calling "storedRequestsLimit"');
-    log('storedRequestsLimit is deprecated, use setMaxRequestQueueSize of CountlyConfig instead', logLevel: LogLevel.WARNING);
+    log('storedRequestsLimit is deprecated, use setMaxRequestQueueSize of CountlyConfig instead',
+        logLevel: LogLevel.WARNING);
     List<String> args = [];
     final String? result = await _channel.invokeMethod(
         'storedRequestsLimit', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -470,7 +470,8 @@ class Countly {
       Map<String, Object> options) async {
     int optionsCount = options.length;
     log('Calling "storedRequestsLimit" with options count:[$optionsCount]');
-    log('setOptionalParametersForInitialization is deprecated, use setLocation of CountlyConfig instead', logLevel: LogLevel.WARNING);
+    log('setOptionalParametersForInitialization is deprecated, use setLocation of CountlyConfig instead',
+        logLevel: LogLevel.WARNING);
     List<String> args = [];
 
     options['city'] ??= 'null';
@@ -491,11 +492,10 @@ class Countly {
     args.add(longitude);
     args.add(ipAddress);
 
-    
     final String? result = await _channel.invokeMethod(
         'setOptionalParametersForInitialization',
         <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -511,7 +511,7 @@ class Countly {
     List<String> args = [];
     final String? result = await _channel.invokeMethod(
         'getCurrentDeviceId', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -532,10 +532,10 @@ class Countly {
     }
     args.add(newDeviceID);
     args.add(onServerString);
-    
+
     final String? result = await _channel.invokeMethod(
         'changeDeviceId', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -548,35 +548,39 @@ class Countly {
     }
     List<String> args = [];
     args.add(logs);
-    
+
     final String? result = await _channel.invokeMethod(
         'addCrashLog', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
   /// Set to true if you want to enable countly internal debugging logs
   /// Should be call before Countly init
-  @Deprecated('Use setLoggingEnabled of CountlyConfig to enable/disable logging instead')
+  @Deprecated(
+      'Use setLoggingEnabled of CountlyConfig to enable/disable logging instead')
   static Future<String?> setLoggingEnabled(bool flag) async {
     log('Calling "setLoggingEnabled":[$flag]');
-    log('setLoggingEnabled is deprecated, use setLoggingEnabled of CountlyConfig to enable/disable logging', logLevel: LogLevel.WARNING);
+    log('setLoggingEnabled is deprecated, use setLoggingEnabled of CountlyConfig to enable/disable logging',
+        logLevel: LogLevel.WARNING);
     List<String> args = [];
     _isDebug = flag;
     args.add(flag.toString());
-    
+
     final String? result = await _channel.invokeMethod(
         'setLoggingEnabled', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
   /// Set the optional salt to be used for calculating the checksum of requested data which will be sent with each request, using the &checksum field
   /// Should be call before Countly init
-  @Deprecated('Use setParameterTamperingProtectionSalt of CountlyConfig instead')
+  @Deprecated(
+      'Use setParameterTamperingProtectionSalt of CountlyConfig instead')
   static Future<String?> enableParameterTamperingProtection(String salt) async {
     log('Calling "enableParameterTamperingProtection":[$salt]');
-    log('enableParameterTamperingProtection is deprecated, use setParameterTamperingProtectionSalt of CountlyConfig instead', logLevel: LogLevel.WARNING);
+    log('enableParameterTamperingProtection is deprecated, use setParameterTamperingProtectionSalt of CountlyConfig instead',
+        logLevel: LogLevel.WARNING);
     if (salt.isEmpty) {
       String error = 'enableParameterTamperingProtection, salt cannot be empty';
       log(error);
@@ -584,11 +588,11 @@ class Countly {
     }
     List<String> args = [];
     args.add(salt);
-    
+
     final String? result = await _channel.invokeMethod(
         'enableParameterTamperingProtection',
         <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -597,13 +601,14 @@ class Countly {
   @Deprecated('Use setHttpPostForced of CountlyConfig instead')
   static Future<String?> setHttpPostForced(bool isEnabled) async {
     log('Calling "setHttpPostForced":[$isEnabled]');
-    log('setHttpPostForced is deprecated, use setHttpPostForced of CountlyConfig instead', logLevel: LogLevel.WARNING);
+    log('setHttpPostForced is deprecated, use setHttpPostForced of CountlyConfig instead',
+        logLevel: LogLevel.WARNING);
     List<String> args = [];
     args.add(isEnabled.toString());
-    
+
     final String? result = await _channel.invokeMethod(
         'setHttpPostForced', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -613,24 +618,26 @@ class Countly {
   static Future<String?> setLocationInit(String countryCode, String city,
       String gpsCoordinates, String ipAddress) async {
     log('Calling "setLocationInit" with countryCode:[$countryCode], city:[$city], gpsCoordinates:[$gpsCoordinates], ipAddress:[$ipAddress]');
-    log('setLocationInit is deprecated, use setLocation of CountlyConfig instead', logLevel: LogLevel.WARNING);
+    log('setLocationInit is deprecated, use setLocation of CountlyConfig instead',
+        logLevel: LogLevel.WARNING);
 
     List<String> args = [];
     args.add(countryCode);
     args.add(city);
     args.add(gpsCoordinates);
     args.add(ipAddress);
-    
+
     final String? result = await _channel.invokeMethod(
         'setLocationInit', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
   @Deprecated('Use setUserLocation instead')
   static Future<String?> setLocation(String latitude, String longitude) async {
     log('Calling "setLocationInit" with latitude:[$latitude], longitude:[$longitude]');
-    log('setLocation is deprecated, use setUserLocation instead', logLevel: LogLevel.WARNING);
+    log('setLocation is deprecated, use setUserLocation instead',
+        logLevel: LogLevel.WARNING);
     if (latitude.isEmpty) {
       String error = 'setLocation, latitude cannot be empty';
       log(error);
@@ -641,7 +648,8 @@ class Countly {
       log(error);
       return 'Error : $error';
     }
-    final String? result = await setUserLocation(gpsCoordinates: '$latitude,$longitude');
+    final String? result =
+        await setUserLocation(gpsCoordinates: '$latitude,$longitude');
     return result;
   }
 
@@ -651,8 +659,11 @@ class Countly {
   /// [String gpsCoordinates] - comma separate lat and lng values. For example, "56.42345,123.45325"
   /// [String ipAddress] - ip address
   ///  All parameters are optional, but at least one has to be set
-  static Future<String?> setUserLocation({String? countryCode, String? city,
-      String? gpsCoordinates, String? ipAddress}) async {
+  static Future<String?> setUserLocation(
+      {String? countryCode,
+      String? city,
+      String? gpsCoordinates,
+      String? ipAddress}) async {
     Map<String, String?> location = {};
     location['countryCode'] = countryCode;
     location['city'] = city;
@@ -664,7 +675,6 @@ class Countly {
         'setUserLocation', <String, dynamic>{'data': json.encode(args)});
     return result;
   }
-
 
   static Future<String?> setProperty(String keyName, String keyValue) async {
     log('Calling "setProperty":[$keyName], value:[$keyValue]');
@@ -681,10 +691,10 @@ class Countly {
     List<String> args = [];
     args.add(keyName);
     args.add(keyValue);
-    
+
     final String? result = await _channel.invokeMethod(
         'userData_setProperty', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -697,10 +707,10 @@ class Countly {
     }
     List<String> args = [];
     args.add(keyName);
-    
+
     final String? result = await _channel.invokeMethod(
         'userData_increment', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -714,10 +724,10 @@ class Countly {
     List<String> args = [];
     args.add(keyName);
     args.add(keyIncrement.toString());
-    
+
     final String? result = await _channel.invokeMethod(
         'userData_incrementBy', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -731,10 +741,10 @@ class Countly {
     List<String> args = [];
     args.add(keyName);
     args.add(multiplyValue.toString());
-    
+
     final String? result = await _channel.invokeMethod(
         'userData_multiply', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -748,10 +758,10 @@ class Countly {
     List<String> args = [];
     args.add(keyName);
     args.add(saveMax.toString());
-    
+
     final String? result = await _channel.invokeMethod(
         'userData_saveMax', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -765,10 +775,10 @@ class Countly {
     List<String> args = [];
     args.add(keyName);
     args.add(saveMin.toString());
-    
+
     final String? result = await _channel.invokeMethod(
         'userData_saveMin', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -787,10 +797,10 @@ class Countly {
     List<String> args = [];
     args.add(keyName);
     args.add(setOnce);
-    
+
     final String? result = await _channel.invokeMethod(
         'userData_setOnce', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -810,11 +820,11 @@ class Countly {
     List<String> args = [];
     args.add(type);
     args.add(pushUniqueValue);
-    
+
     final String? result = await _channel.invokeMethod(
         'userData_pushUniqueValue',
         <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -833,10 +843,10 @@ class Countly {
     List<String> args = [];
     args.add(type);
     args.add(pushValue);
-    
+
     final String? result = await _channel.invokeMethod(
         'userData_pushValue', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -855,10 +865,10 @@ class Countly {
     List<String> args = [];
     args.add(type);
     args.add(pullValue);
-    
+
     final String? result = await _channel.invokeMethod(
         'userData_pullValue', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -867,13 +877,14 @@ class Countly {
   @Deprecated('Use setRequiresConsent of CountlyConfig instead')
   static Future<String?> setRequiresConsent(bool flag) async {
     log('Calling "setRequiresConsent":[$flag]');
-    log('setRequiresConsent is deprecated, use setRequiresConsent of CountlyConfig instead', logLevel: LogLevel.WARNING);
+    log('setRequiresConsent is deprecated, use setRequiresConsent of CountlyConfig instead',
+        logLevel: LogLevel.WARNING);
     List<String> args = [];
     args.add(flag.toString());
-    
+
     final String? result = await _channel.invokeMethod(
         'setRequiresConsent', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -881,23 +892,24 @@ class Countly {
   /// Should be call before Countly init
   @Deprecated('Use setConsentEnabled of CountlyConfig instead')
   static Future<String?> giveConsentInit(List<String> consents) async {
-    String consentsString  = consents.toString();
+    String consentsString = consents.toString();
     log('Calling "setRequiresConsent":[$consentsString]');
-      log('giveConsentInit is deprecated, use setConsentEnabled of CountlyConfig instead', logLevel: LogLevel.WARNING);
+    log('giveConsentInit is deprecated, use setConsentEnabled of CountlyConfig instead',
+        logLevel: LogLevel.WARNING);
 
-      if (consents.isEmpty) {
+    if (consents.isEmpty) {
       String error = 'giveConsentInit, consents List is empty';
       log(error, logLevel: LogLevel.WARNING);
     }
     log(consents.toString());
     final String? result = await _channel.invokeMethod(
         'giveConsentInit', <String, dynamic>{'data': json.encode(consents)});
-    
+
     return result;
   }
 
   static Future<String?> giveConsent(List<String> consents) async {
-    String consentsString  = consents.toString();
+    String consentsString = consents.toString();
     log('Calling "giveConsent":[$consentsString]');
     if (consents.isEmpty) {
       String error = 'giveConsent, consents List is empty';
@@ -906,12 +918,12 @@ class Countly {
     log(consents.toString());
     final String? result = await _channel.invokeMethod(
         'giveConsent', <String, dynamic>{'data': json.encode(consents)});
-    
+
     return result;
   }
 
   static Future<String?> removeConsent(List<String> consents) async {
-    String consentsString  = consents.toString();
+    String consentsString = consents.toString();
     log('Calling "removeConsent":[$consentsString]');
     if (consents.isEmpty) {
       String error = 'removeConsent, consents List is empty';
@@ -920,7 +932,7 @@ class Countly {
     log(consents.toString());
     final String? result = await _channel.invokeMethod(
         'removeConsent', <String, dynamic>{'data': json.encode(consents)});
-    
+
     return result;
   }
 
@@ -931,7 +943,7 @@ class Countly {
     List<String> args = [];
     final String? result = await _channel.invokeMethod(
         'giveAllConsent', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -940,7 +952,7 @@ class Countly {
     List<String> args = [];
     final String? result = await _channel.invokeMethod(
         'removeAllConsent', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -950,13 +962,14 @@ class Countly {
   static Future<String?> setRemoteConfigAutomaticDownload(
       Function callback) async {
     log('Calling "setRemoteConfigAutomaticDownload"');
-    log('setRemoteConfigAutomaticDownload is deprecated, use setRemoteConfigAutomaticDownload of CountlyConfig instead', logLevel: LogLevel.WARNING);
+    log('setRemoteConfigAutomaticDownload is deprecated, use setRemoteConfigAutomaticDownload of CountlyConfig instead',
+        logLevel: LogLevel.WARNING);
     List<String> args = [];
-    
+
     final String? result = await _channel.invokeMethod(
         'setRemoteConfigAutomaticDownload',
         <String, dynamic>{'data': json.encode(args)});
-    
+
     callback(result);
     return result;
   }
@@ -965,10 +978,9 @@ class Countly {
     log('Calling "remoteConfigUpdate"');
     List<String> args = [];
 
-    
     final String? result = await _channel.invokeMethod(
         'remoteConfigUpdate', <String, dynamic>{'data': json.encode(args)});
-    
+
     callback(result);
     return result;
   }
@@ -985,7 +997,7 @@ class Countly {
     final String? result = await _channel.invokeMethod(
         'updateRemoteConfigForKeysOnly',
         <String, dynamic>{'data': json.encode(keys)});
-    
+
     callback(result);
     return result;
   }
@@ -1002,7 +1014,7 @@ class Countly {
     final String? result = await _channel.invokeMethod(
         'updateRemoteConfigExceptKeys',
         <String, dynamic>{'data': json.encode(keys)});
-    
+
     callback(result);
     return result;
   }
@@ -1010,11 +1022,11 @@ class Countly {
   static Future<String?> remoteConfigClearValues(Function callback) async {
     log('Calling "remoteConfigClearValues"');
     List<String> args = [];
-    
+
     final String? result = await _channel.invokeMethod(
         'remoteConfigClearValues',
         <String, dynamic>{'data': json.encode(args)});
-    
+
     callback(result);
     return result;
   }
@@ -1029,11 +1041,11 @@ class Countly {
     }
     List<String> args = [];
     args.add(key);
-    
+
     final String? result = await _channel.invokeMethod(
         'getRemoteConfigValueForKey',
         <String, dynamic>{'data': json.encode(args)});
-    
+
     callback(result);
     return result;
   }
@@ -1046,26 +1058,27 @@ class Countly {
   static Future<String?> setStarRatingDialogTexts(String starRatingTextTitle,
       String starRatingTextMessage, String starRatingTextDismiss) async {
     log('Calling "setStarRatingDialogTexts":[$starRatingTextTitle], message:[$starRatingTextMessage], dimiss:[$starRatingTextDismiss]');
-    log('setStarRatingDialogTexts is deprecated, use setStarRatingDialogTexts of CountlyConfig instead', logLevel: LogLevel.WARNING);
+    log('setStarRatingDialogTexts is deprecated, use setStarRatingDialogTexts of CountlyConfig instead',
+        logLevel: LogLevel.WARNING);
     List<String> args = [];
     args.add(starRatingTextTitle);
     args.add(starRatingTextMessage);
     args.add(starRatingTextDismiss);
-    
+
     final String? result = await _channel.invokeMethod(
         'setStarRatingDialogTexts',
         <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
   static Future<String?> askForStarRating() async {
     log('Calling "askForStarRating"');
     List<String> args = [];
-    
+
     final String? result = await _channel.invokeMethod(
         'askForStarRating', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -1078,13 +1091,16 @@ class Countly {
       log(error);
       return 'Error : $error';
     }
-    log('askForFeedback is deprecated, use presentRatingWidgetWithID instead', logLevel: LogLevel.WARNING);
-    final String? result = await presentRatingWidgetWithID(widgetId, closeButtonText: closeButtonText);
+    log('askForFeedback is deprecated, use presentRatingWidgetWithID instead',
+        logLevel: LogLevel.WARNING);
+    final String? result = await presentRatingWidgetWithID(widgetId,
+        closeButtonText: closeButtonText);
     return result;
   }
 
-  static Future<String?> presentRatingWidgetWithID(
-      String widgetId, {String? closeButtonText, Function(String? error)? ratingWidgetCallback}) async {
+  static Future<String?> presentRatingWidgetWithID(String widgetId,
+      {String? closeButtonText,
+      Function(String? error)? ratingWidgetCallback}) async {
     bool isCallback = ratingWidgetCallback != null ? true : false;
     log('Calling "presentRatingWidgetWithID":[$widgetId] with callback:[$isCallback]');
     if (widgetId.isEmpty) {
@@ -1098,7 +1114,8 @@ class Countly {
     args.add(widgetId);
     args.add(closeButtonText);
     final String? result = await _channel.invokeMethod(
-        'presentRatingWidgetWithID', <String, dynamic>{'data': json.encode(args)});
+        'presentRatingWidgetWithID',
+        <String, dynamic>{'data': json.encode(args)});
     return result;
   }
 
@@ -1142,7 +1159,7 @@ class Countly {
     args.add(widgetType);
     args.add(widgetInfo.name);
     args.add(closeButtonText);
-    
+
     String? result;
     try {
       result = await _channel.invokeMethod('presentFeedbackWidget',
@@ -1151,7 +1168,6 @@ class Countly {
       result = e.message;
     }
 
-    
     return result;
   }
 
@@ -1168,7 +1184,7 @@ class Countly {
     args.add(widgetId);
     args.add(widgetType);
     args.add(widgetInfo.name);
-    
+
     try {
       Map<dynamic, dynamic> retrievedWidgetData = await _channel.invokeMethod(
           'getFeedbackWidgetData',
@@ -1201,7 +1217,7 @@ class Countly {
     args.add(widgetInfoList);
     args.add(widgetData);
     args.add(widgetResult);
-    
+
     String? result;
     try {
       result = await _channel.invokeMethod('reportFeedbackWidgetManually',
@@ -1209,7 +1225,7 @@ class Countly {
     } on PlatformException catch (e) {
       result = e.message;
     }
-    
+
     return result;
   }
 
@@ -1222,10 +1238,10 @@ class Countly {
     }
     List<String> args = [];
     args.add(key);
-    
+
     final String? result = await _channel.invokeMethod(
         'startEvent', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -1255,10 +1271,10 @@ class Countly {
         args.add(v.toString());
       });
     }
-    
+
     final String? result = await _channel
         .invokeMethod('endEvent', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -1267,10 +1283,10 @@ class Countly {
   static Future<String?> throwNativeException() async {
     log('Calling "throwNativeException"');
     List<String> args = [];
-    
+
     final String? result = await _channel.invokeMethod(
         'throwNativeException', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -1279,13 +1295,14 @@ class Countly {
   @Deprecated('Use enableCrashReporting of CountlyConfig instead')
   static Future<String?> enableCrashReporting() async {
     log('Calling "enableCrashReporting"');
-    log('enableCrashReporting is deprecated, use enableCrashReporting of CountlyConfig instead', logLevel: LogLevel.WARNING);
+    log('enableCrashReporting is deprecated, use enableCrashReporting of CountlyConfig instead',
+        logLevel: LogLevel.WARNING);
     FlutterError.onError = _recordFlutterError;
     List<String> args = [];
     _enableCrashReportingFlag = true;
     final String? result = await _channel.invokeMethod(
         'enableCrashReporting', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -1301,7 +1318,7 @@ class Countly {
   /// [Map<String, Object> segmentation] - allows to add optional segmentation
   static Future<String?> logException(String exception, bool nonfatal,
       [Map<String, Object>? segmentation]) async {
-    int segCount = segmentation !=null? segmentation.length : 0;
+    int segCount = segmentation != null ? segmentation.length : 0;
     log('Calling "logException":[$exception] nonfatal:[$nonfatal]: with segmentation count:[$segCount]');
     List<String> args = [];
     args.add(exception);
@@ -1314,7 +1331,7 @@ class Countly {
     }
     final String? result = await _channel.invokeMethod(
         'logException', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -1325,16 +1342,17 @@ class Countly {
       Map<String, Object> segments) async {
     int segCount = segments.length;
     log('Calling "setCustomCrashSegment" segmentation count:[$segCount]');
-    log('setCustomCrashSegment is deprecated, use setCustomCrashSegment of CountlyConfig instead', logLevel: LogLevel.WARNING);
+    log('setCustomCrashSegment is deprecated, use setCustomCrashSegment of CountlyConfig instead',
+        logLevel: LogLevel.WARNING);
     List<String> args = [];
     segments.forEach((k, v) {
       args.add(k.toString());
       args.add(v.toString());
     });
-    
+
     final String? result = await _channel.invokeMethod(
         'setCustomCrashSegment', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -1342,10 +1360,10 @@ class Countly {
     log('Calling "startTrace":[$traceKey]');
     List<String> args = [];
     args.add(traceKey);
-    
+
     final String? result = await _channel.invokeMethod(
         'startTrace', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -1353,10 +1371,10 @@ class Countly {
     log('Calling "cancelTrace":[$traceKey]');
     List<String> args = [];
     args.add(traceKey);
-    
+
     final String? result = await _channel.invokeMethod(
         'cancelTrace', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -1365,7 +1383,7 @@ class Countly {
     List<String> args = [];
     final String? result = await _channel.invokeMethod(
         'clearAllTraces', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -1381,10 +1399,10 @@ class Countly {
         args.add(v.toString());
       });
     }
-    
+
     final String? result = await _channel
         .invokeMethod('endTrace', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -1403,10 +1421,10 @@ class Countly {
     args.add(responsePayloadSize.toString());
     args.add(startTime.toString());
     args.add(endTime.toString());
-    
+
     final String? result = await _channel.invokeMethod(
         'recordNetworkTrace', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -1415,11 +1433,12 @@ class Countly {
   @Deprecated('Use setRecordAppStartTime of CountlyConfig instead')
   static Future<String?> enableApm() async {
     log('Calling "enableApm"');
-    log('enableApm is deprecated, use setRecordAppStartTime of CountlyConfig instead', logLevel: LogLevel.WARNING);
+    log('enableApm is deprecated, use setRecordAppStartTime of CountlyConfig instead',
+        logLevel: LogLevel.WARNING);
     List<String> args = [];
     final String? result = await _channel.invokeMethod(
         'enableApm', <String, dynamic>{'data': json.encode(args)});
-    
+
     return result;
   }
 
@@ -1437,8 +1456,8 @@ class Countly {
     String exceptionString = exception.toString();
     log('Calling "logExceptionEx":[$exceptionString] nonfatal:[$nonfatal]');
     stacktrace ??= StackTrace.current;
-    final result = logException(
-        '$exceptionString\n\n$stacktrace', nonfatal, segmentation);
+    final result =
+        logException('$exceptionString\n\n$stacktrace', nonfatal, segmentation);
     return result;
   }
 
@@ -1471,8 +1490,7 @@ class Countly {
       return;
     }
 
-    unawaited(
-        _internalRecordError(details.exceptionAsString(), details.stack));
+    unawaited(_internalRecordError(details.exceptionAsString(), details.stack));
   }
 
   /// Callback to catch and report Dart errors, [enableCrashReporting()] must call before [initWithConfig] to make it work.
@@ -1524,7 +1542,8 @@ class Countly {
   @Deprecated('Use recordIndirectAttribution instead')
   static Future<String?> enableAttribution() async {
     log('Calling enableAttribution');
-    String error = 'enableAttribution is deprecated, use recordIndirectAttribution instead';
+    String error =
+        'enableAttribution is deprecated, use recordIndirectAttribution instead';
     log(error);
     return 'Error : $error';
   }
@@ -1542,10 +1561,9 @@ class Countly {
       return 'Error : $error';
     }
     Map<String, String> attributionValues = {};
-    if(Platform.isIOS){
+    if (Platform.isIOS) {
       attributionValues[AttributionKey.IDFA] = attributionID;
-    }
-    else {
+    } else {
       attributionValues[AttributionKey.AdvertisingID] = attributionID;
     }
     final String? result = await recordIndirectAttribution(attributionValues);
@@ -1554,12 +1572,14 @@ class Countly {
 
   /// set indirect attribution Id for campaign attribution reporting.
   /// Use 'AttributionKey' to set key of IDFA and ADID
-  static Future<String?> recordIndirectAttribution(Map<String, String> attributionValues) async {
+  static Future<String?> recordIndirectAttribution(
+      Map<String, String> attributionValues) async {
     int attributionValuesCount = attributionValues.length;
     log('Calling recordIndirectAttribution: [$attributionValuesCount]');
     attributionValues.forEach((k, v) {
-      if(k.isEmpty) {
-        String error = 'recordIndirectAttribution, Key should not be empty, ignoring that key-value pair';
+      if (k.isEmpty) {
+        String error =
+            'recordIndirectAttribution, Key should not be empty, ignoring that key-value pair';
         log(error);
         attributionValues.removeWhere((key, value) => key == k && value == v);
       }
@@ -1567,13 +1587,15 @@ class Countly {
     List<dynamic> args = [];
     args.add(attributionValues);
     final String? result = await _channel.invokeMethod(
-        'recordIndirectAttribution', <String, dynamic>{'data': json.encode(args)});
+        'recordIndirectAttribution',
+        <String, dynamic>{'data': json.encode(args)});
     return result;
   }
 
   /// set direct attribution Id for campaign attribution reporting.
   /// Currently implemented for Android only.
-  static Future<String?> recordDirectAttribution(String campaignType, String campaignData) async {
+  static Future<String?> recordDirectAttribution(
+      String campaignType, String campaignData) async {
     log('Calling recordDirectAttribution: [$campaignType] with campaignData: [$campaignData]');
     if (!Platform.isAndroid) {
       return 'recordDirectAttribution : To be implemented';
@@ -1587,7 +1609,8 @@ class Countly {
     args.add(campaignType);
     args.add(campaignData);
     final String? result = await _channel.invokeMethod(
-        'recordDirectAttribution', <String, dynamic>{'data': json.encode(args)});
+        'recordDirectAttribution',
+        <String, dynamic>{'data': json.encode(args)});
     return result;
   }
 
@@ -1597,91 +1620,94 @@ class Countly {
       countlyConfig['appKey'] = config.appKey;
       countlyConfig['serverURL'] = config.serverURL;
 
-      if(config.deviceID != null) {
+      if (config.deviceID != null) {
         countlyConfig['deviceID'] = config.deviceID;
       }
 
       if (config.customCrashSegment != null) {
         countlyConfig['customCrashSegment'] = config.customCrashSegment;
       }
-      if(config.consents != null) {
+      if (config.consents != null) {
         countlyConfig['consents'] = config.consents;
       }
-      if(config.tamperingProtectionSalt != null) {
-        countlyConfig['tamperingProtectionSalt'] = config.tamperingProtectionSalt;
+      if (config.tamperingProtectionSalt != null) {
+        countlyConfig['tamperingProtectionSalt'] =
+            config.tamperingProtectionSalt;
       }
-      if(config.eventQueueSizeThreshold != null) {
-        countlyConfig['eventQueueSizeThreshold'] = config.eventQueueSizeThreshold;
+      if (config.eventQueueSizeThreshold != null) {
+        countlyConfig['eventQueueSizeThreshold'] =
+            config.eventQueueSizeThreshold;
       }
-      if(config.sessionUpdateTimerDelay != null) {
-        countlyConfig['sessionUpdateTimerDelay'] = config.sessionUpdateTimerDelay;
+      if (config.sessionUpdateTimerDelay != null) {
+        countlyConfig['sessionUpdateTimerDelay'] =
+            config.sessionUpdateTimerDelay;
       }
-      if(config.starRatingTextTitle != null) {
+      if (config.starRatingTextTitle != null) {
         countlyConfig['starRatingTextTitle'] = config.starRatingTextTitle;
       }
-      if(config.starRatingTextMessage != null) {
+      if (config.starRatingTextMessage != null) {
         countlyConfig['starRatingTextMessage'] = config.starRatingTextMessage;
       }
-      if(config.starRatingTextDismiss != null) {
+      if (config.starRatingTextDismiss != null) {
         countlyConfig['starRatingTextDismiss'] = config.starRatingTextDismiss;
       }
-      if(config.loggingEnabled != null) {
+      if (config.loggingEnabled != null) {
         countlyConfig['loggingEnabled'] = config.loggingEnabled;
       }
-      if(config.httpPostForced != null) {
+      if (config.httpPostForced != null) {
         countlyConfig['httpPostForced'] = config.httpPostForced;
       }
-      if(config.shouldRequireConsent != null) {
+      if (config.shouldRequireConsent != null) {
         countlyConfig['shouldRequireConsent'] = config.shouldRequireConsent;
       }
-      if(config.recordAppStartTime != null) {
+      if (config.recordAppStartTime != null) {
         countlyConfig['recordAppStartTime'] = config.recordAppStartTime;
       }
-      if(config.enableUnhandledCrashReporting != null) {
-        countlyConfig['enableUnhandledCrashReporting'] = config.enableUnhandledCrashReporting;
+      if (config.enableUnhandledCrashReporting != null) {
+        countlyConfig['enableUnhandledCrashReporting'] =
+            config.enableUnhandledCrashReporting;
       }
 
-      if(config.manualSessionEnabled != null) {
+      if (config.manualSessionEnabled != null) {
         countlyConfig['manualSessionEnabled'] = config.manualSessionEnabled;
       }
 
-      if(config.maxRequestQueueSize != null) {
+      if (config.maxRequestQueueSize != null) {
         countlyConfig['maxRequestQueueSize'] = config.maxRequestQueueSize;
       }
 
-      if(config.locationCity != null) {
+      if (config.locationCity != null) {
         countlyConfig['locationCity'] = config.locationCity;
       }
 
-      if(config.locationCountryCode != null) {
+      if (config.locationCountryCode != null) {
         countlyConfig['locationCountryCode'] = config.locationCountryCode;
       }
 
-      if(config.locationGpsCoordinates != null) {
+      if (config.locationGpsCoordinates != null) {
         countlyConfig['locationGpsCoordinates'] = config.locationGpsCoordinates;
       }
 
-      if(config.locationIpAddress != null) {
+      if (config.locationIpAddress != null) {
         countlyConfig['locationIpAddress'] = config.locationIpAddress;
       }
 
-      if(config.enableRemoteConfigAutomaticDownload != null) {
-        countlyConfig['enableRemoteConfigAutomaticDownload'] = config.enableRemoteConfigAutomaticDownload;
+      if (config.enableRemoteConfigAutomaticDownload != null) {
+        countlyConfig['enableRemoteConfigAutomaticDownload'] =
+            config.enableRemoteConfigAutomaticDownload;
       }
 
-      if(config.daCampaignType != null) {
+      if (config.daCampaignType != null) {
         countlyConfig['campaignType'] = config.daCampaignType;
       }
 
-      if(config.daCampaignData != null) {
+      if (config.daCampaignData != null) {
         countlyConfig['campaignData'] = config.daCampaignData;
       }
 
-      if(config.iaAttributionValues != null) {
+      if (config.iaAttributionValues != null) {
         countlyConfig['attributionValues'] = config.iaAttributionValues;
       }
-
-
     } catch (e) {
       log('_configToJson, Exception occur during converting config to json: $e');
     }
