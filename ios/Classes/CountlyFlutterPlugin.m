@@ -15,8 +15,8 @@
 + (CountlyFeedbackWidget *)createWithDictionary:(NSDictionary *)dictionary;
 @end
 
-// #define COUNTLY_EXCLUDE_PUSHNOTIFICATIONS
-BOOL BUILDING_WITH_PUSH_DISABLED = false;
+ #define COUNTLY_EXCLUDE_PUSHNOTIFICATIONS
+BOOL BUILDING_WITH_PUSH_DISABLED = true;
 
 NSString* const kCountlyFlutterSDKVersion = @"22.02.0";
 NSString* const kCountlyFlutterSDKName = @"dart-flutterb-ios";
